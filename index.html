@@ -6,9 +6,29 @@
 	<script src="js/vendor/jquery-1.11.1.min.js"></script>
 	<script src="js/vendor/underscore-min.js"></script>
 	<script src="js/vendor/backbone-1.1.2.min.js"></script>
+	<script src="js/vendor/backbone.localStorage-min.js"></script>
 	<script src="js/app.js"></script>
 </head>
 <body>
-	
+	<section id="todoapp">
+		<header id="header">
+			<h1>Todos</h1>
+			<input id="new-todo" placeholder="what needs to be done?" autofocus>
+		</header>
+		<section id="main">
+			<input id="toggle-all" type="checkbox" />
+			<label for="toggle-all">Mark all as complete</label>
+			<ul id="todo-list"></ul>
+		</section>
+		<footer id="footer"></footer>
+	</section>
+	<div id="info">double click to edit a todo</div>
+
+	<script type="text/template" id="item-template">
+	<div class="view">
+		<input type="checkbox" class="toggle" />
+		item
+	</div>
+	</script>
 </body>
 </html>
