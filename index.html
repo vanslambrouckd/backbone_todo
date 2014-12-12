@@ -3,7 +3,11 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Backbone - Todo App</title>
-	
+	<style type="text/css">
+		#todo-list li.done {
+			text-decoration: line-through;
+		}
+	</style>
 </head>
 <body>
 	<section id="todoapp">
@@ -22,8 +26,19 @@
 
 	<script type="text/template" id="item-template">
 	<div class="view">
-	item: <%= title %>
+		<input type="checkbox" class="toggle" <%= completed? 'checked="checked"':'' %> />&nbsp; <%= title %>
 	</div>
+	</script>
+
+	<script type="text/template" id="stats-template">
+		<%= remaining %> item(s) left
+
+		<a>All</a>
+		<a>Active</a>
+		<a>Complete</a>
+		<% if (completed) { %>
+			<button id="clear-completed">Clear completed (<%= completed %> items)</button>
+		<% } %>
 	</script>
 
 	<script src="js/vendor/jquery-1.11.1.min.js"></script>
