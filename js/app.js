@@ -5,6 +5,8 @@ $(function() {
 
     var ENTER_KEY = 13;
 
+
+
     var Msg = Backbone.Model.extend({
         defaults: {
             title: 'david',
@@ -37,13 +39,15 @@ $(function() {
     var msgCollection = new MsgCollection();
     var MsgView = Backbone.View.extend({
         events: {
-            'click .toggle': 'toggleDone'
+            'click .toggle': 'toggleDone',
+            'click .destroy': 'clear'
         },
         tagName: 'li',
         className: 'item',
         template: _.template($('#item-template').html()),
         initialize: function() {
             this.model.bind('change', this.render, this);
+            this.listenTo(this.model, 'destroy', this.remove);
         },
         render: function() {
             this.$el.html(this.template(this.model.toJSON())); //toJSON() anders errors!
@@ -53,6 +57,14 @@ $(function() {
         },
         toggleDone: function() {
             this.model.set('completed', !this.model.get('completed'));
+        },
+        clear: function(event) {
+            this.model.destroy();
+        },
+        remove: function() {
+            this.stopListening();
+            this.undelegateEvents();
+            this.$el.remove();
         }
     });
 
@@ -62,7 +74,13 @@ $(function() {
         statsTemplate: _.template($('#stats-template').html()),
         events: {
             'keypress #new-todo': 'createOnEnter',
-            'click #toggle-all': 'toggleAllCompleted'
+            'click #toggle-all': 'toggleAllCompleted',
+            'click #clear-completed': 'clearCompleted'
+        },
+        clearCompleted: function(event) {
+            //event.preventDefault();
+            _.invoke(msgCollection.completed(), 'destroy');
+            return false;
         },
         toggleAllCompleted: function(event) {
             var chkStatus = this.chkToggleAll.checked;
@@ -98,9 +116,19 @@ $(function() {
             */
             this.listenTo(msgCollection, 'reset', this.addAll);
             this.listenTo(msgCollection, 'all', this.render); //zodat de stats in de footer upgedate worden: luisteren naar alle wijzigingen in de collection
+
+            this.listenTo(msgCollection, 'filter', this.filterAll);
+
             console.log('appview initialized');
             msgCollection.fetch(); //dit zend een 'reset' event uit, die dan this.addAll oproept (zie hoger)
             this.render();
+        },
+        filterAll: function() {
+            console.log('filterAll called');
+            msgCollection.each(this.filterOne, this);
+        },
+        filterOne: function(msg) {
+            msg.trigger('visible');
         },
         addOne: function(msg) {
             var view = new MsgView({
@@ -125,6 +153,28 @@ $(function() {
     });
 
     var appView = new AppView();
+
+    var WorkSpace = Backbone.Router.extend({
+        routes: {
+            '*filter': 'setFilter'
+        },
+        setFilter: function(param) {
+
+            console.log('setfilter', param);
+            if (param) {
+                param = param.trim();
+            }
+            MsgFilter = param || '';
+
+            alert(param);
+
+            //trigger a collection filter event, causing hiding/unhhiding of the msg view items
+            msgCollection.trigger('filter');
+        }
+    });
+
+    var msgRouter = new WorkSpace();
+    Backbone.history.start();
 
     var Item = Backbone.Model.extend({});
     var Coll = Backbone.Collection.extend({

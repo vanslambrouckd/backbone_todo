@@ -27,15 +27,16 @@
 	<script type="text/template" id="item-template">
 	<div class="view">
 		<input type="checkbox" class="toggle" <%= completed? 'checked="checked"':'' %> />&nbsp; <%= title %>
+		<button class="destroy">delete</button>
 	</div>
 	</script>
 
 	<script type="text/template" id="stats-template">
 		<%= remaining %> item(s) left
 
-		<a>All</a>
-		<a>Active</a>
-		<a>Complete</a>
+		<a class="selected" href="#">All</a>
+		<a href="#/active">Active</a>
+		<a href="#/completed">Complete</a>
 		<% if (completed) { %>
 			<button id="clear-completed">Clear completed (<%= completed %> items)</button>
 		<% } %>
