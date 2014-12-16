@@ -4,7 +4,7 @@ $(function() {
     //new app.AppView();
 
     var ENTER_KEY = 13;
-
+    var ESC_KEY = 27;
 
 
     var Msg = Backbone.Model.extend({
@@ -40,7 +40,11 @@ $(function() {
     var MsgView = Backbone.View.extend({
         events: {
             'click .toggle': 'toggleDone',
-            'click .destroy': 'clear'
+            'click .destroy': 'clear',
+            'dblclick label': 'edit',
+            'keypress .edit': 'updateOnEnter',
+            'keydown .edit': 'revertOnEscape',
+            'blur .edit': 'close'
         },
         tagName: 'li',
         className: 'item',
@@ -67,6 +71,7 @@ $(function() {
             this.$el.html(this.template(this.model.toJSON())); //toJSON() anders errors!
             //console.log(this.model.get('completed'));
             this.$el.toggleClass('done', this.model.get('completed'));
+            this.$input = this.$('.edit');
             return this; //nodig voor chain
         },
         toggleDone: function() {
@@ -79,6 +84,40 @@ $(function() {
             this.stopListening();
             this.undelegateEvents();
             this.$el.remove();
+        },
+        edit: function() {
+            this.$el.addClass('editing');
+            this.$input.focus();
+        },
+        close: function() {
+            var value = this.$input.val().trim();
+
+            if (!this.$el.hasClass('editing')) {
+                return;
+            }
+
+            if (value) {
+                this.model.save({
+                    title: value
+                });
+            }
+
+            this.$el.removeClass('editing');
+        },
+        updateOnEnter: function(event) {
+            if (event.which == ENTER_KEY) {
+                this.close();
+            }
+        },
+        revertOnEscape: function(event) {
+            console.clear();
+            console.log(event.which, ESC_KEY);;
+            if (event.which == ESC_KEY) {
+                console.log('ja');
+                console.log(this.model.get('title'));;
+                this.$el.removeClass('editing');
+                this.$input.val(this.model.get('title'));
+            }
         }
     });
 

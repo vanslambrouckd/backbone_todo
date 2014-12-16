@@ -11,6 +11,18 @@
 		#todo-list li.hidden {
 			display:none;
 		}
+		#todo-list li .edit {
+			display: none;
+		}
+
+		#todo-list li.editing label {
+			display: none;
+		}
+
+		#todo-list li.editing .edit {
+			display: block;
+			border: solid 1px blue;
+		}
 	</style>
 </head>
 <body>
@@ -30,8 +42,9 @@
 
 	<script type="text/template" id="item-template">
 	<div class="view">
-		<input type="checkbox" class="toggle" <%= completed? 'checked="checked"':'' %> />&nbsp; <%= title %>
+		<input type="checkbox" class="toggle" <%= completed? 'checked="checked"':'' %> />&nbsp; <label><%= title %></label>
 		<button class="destroy">delete</button>
+		<input type="text" class="edit" value="<%= title %>" />
 	</div>
 	</script>
 
