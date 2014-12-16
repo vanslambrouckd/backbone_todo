@@ -48,10 +48,24 @@ $(function() {
         initialize: function() {
             this.model.bind('change', this.render, this);
             this.listenTo(this.model, 'destroy', this.remove);
+            this.listenTo(this.model, 'visible', this.toggleVisible);
+        },
+        toggleVisible: function() {
+            console.log(this.model.get('completed'), MsgFilter);
+
+            this.$el.toggleClass('hidden', this.isHidden());
+        },
+        isHidden: function() {
+            var isCompleted = this.model.get('completed');
+            return (
+            (!isCompleted && MsgFilter == 'completed')
+            ||
+            (isCompleted && MsgFilter == 'active')
+            );
         },
         render: function() {
             this.$el.html(this.template(this.model.toJSON())); //toJSON() anders errors!
-            console.log(this.model.get('completed'));
+            //console.log(this.model.get('completed'));
             this.$el.toggleClass('done', this.model.get('completed'));
             return this; //nodig voor chain
         },
@@ -118,6 +132,7 @@ $(function() {
             this.listenTo(msgCollection, 'all', this.render); //zodat de stats in de footer upgedate worden: luisteren naar alle wijzigingen in de collection
 
             this.listenTo(msgCollection, 'filter', this.filterAll);
+            this.listenTo(msgCollection, 'change:completed', this.filterOne);
 
             console.log('appview initialized');
             msgCollection.fetch(); //dit zend een 'reset' event uit, die dan this.addAll oproept (zie hoger)
@@ -143,7 +158,7 @@ $(function() {
             var remaining = msgCollection.remaining().length;
             var completed = msgCollection.completed().length;
 
-            console.log(remaining, completed);
+            //console.log(remaining, completed);
             //var remaining = 0;
             this.$footer.html(this.statsTemplate({
                 remaining: remaining,
@@ -159,14 +174,12 @@ $(function() {
             '*filter': 'setFilter'
         },
         setFilter: function(param) {
-
+            console.clear();
             console.log('setfilter', param);
             if (param) {
                 param = param.trim();
             }
             MsgFilter = param || '';
-
-            alert(param);
 
             //trigger a collection filter event, causing hiding/unhhiding of the msg view items
             msgCollection.trigger('filter');
@@ -175,7 +188,7 @@ $(function() {
 
     var msgRouter = new WorkSpace();
     Backbone.history.start();
-
+    console.log(MsgFilter);
     var Item = Backbone.Model.extend({});
     var Coll = Backbone.Collection.extend({
         remaining: function() {
